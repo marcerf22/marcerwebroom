@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lyrics Downloader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root[data-theme="dark"] {
+  --bg: #0a0a0c;
+  --surface: #111116;
+  --surface2: #16161d;
+  --border: #1e1e28;
+  --border-light: #2e2e3e;
+  --text: #e8e8f0;
+  --text-muted: #6b6b80;
+  --text-faint: #2a2a38;
+  --accent: #fc3c44;
+  --accent-glow: rgba(252,60,68,0.15);
+  --green: #34d399;
+  --yellow: #fbbf24;
+  --spotify: #1db954;
+  --spotify-glow: rgba(29,185,84,0.12);
+  --shadow: rgba(0,0,0,0.5);
+}
+:root[data-theme="light"] {
+  --bg: #f2f2f6;
+  --surface: #ffffff;
+  --surface2: #f7f7fa;
+  --border: #e2e2ec;
+  --border-light: #c8c8d8;
+  --text: #1a1a2e;
+  --text-muted: #70708a;
+  --text-faint: #dddde8;
+  --accent: #e0272f;
+  --accent-glow: rgba(224,39,47,0.1);
+  --green: #16a34a;
+  --yellow: #d97706;
+  --spotify: #16a34a;
+  --spotify-glow: rgba(22,163,74,0.1);
+  --shadow: rgba(0,0,0,0.1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 3rem 1.5rem 5rem;
+  position: relative;
+  overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
+}
+
+.blob {
+  position: fixed; border-radius: 50%; pointer-events: none;
+  filter: blur(90px); transition: opacity 0.5s;
+}
+.blob-1 {
+  width: 520px; height: 520px; top: -220px; left: -160px;
+  background: radial-gradient(circle, rgba(252,60,68,0.18) 0%, transparent 70%);
+  animation: blobFloat 13s ease-in-out infinite alternate;
+  opacity: 0.6;
+}
+.blob-2 {
+  width: 420px; height: 420px; bottom: -160px; right: -110px;
+  background: radial-gradient(circle, rgba(29,185,84,0.13) 0%, transparent 70%);
+  animation: blobFloat 18s ease-in-out infinite alternate-reverse;
+  opacity: 0.5;
+}
+[data-theme="light"] .blob { opacity: 0.22 !important; }
+@keyframes blobFloat {
+  from { transform: translate(0,0) scale(1); }
+  to   { transform: translate(28px,18px) scale(1.07); }
+}
+
+.container { width: 100%; max-width: 640px; position: relative; z-index: 1; }
+
+/* ── Topbar ── */
+.topbar {
+  display: flex; justify-content: flex-end; align-items: center;
+  gap: 0.4rem; margin-bottom: 3rem;
+  animation: fadeDown 0.45s ease both;
+}
+.topbar-btn {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 7px;
+  color: var(--text-muted); font-family: 'DM Mono', monospace; font-size: 0.67rem;
+  letter-spacing: 0.06em; padding: 0.42rem 0.7rem; cursor: pointer;
+  transition: all 0.15s; display: flex; align-items: center; gap: 0.3rem;
+}
+.topbar-btn:hover { border-color: var(--border-light); color: var(--text); }
+.topbar-btn.active { border-color: var(--border-light); color: var(--text); background: var(--surface2); }
+.topbar-sep { width: 1px; height: 16px; background: var(--border); margin: 0 0.2rem; }
+.lang-dot { color: var(--text-faint); user-select: none; font-size: 0.65rem; }
+
+/* ── Header ── */
+header {
+  text-align: center; margin-bottom: 2.5rem;
+  animation: fadeDown 0.5s 0.05s ease both;
+}
+.logo-wrap {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 58px; height: 58px;
+  background: linear-gradient(135deg, var(--accent) 0%, #ff7070 100%);
+  border-radius: 17px; font-size: 27px; margin-bottom: 1rem;
+  box-shadow: 0 10px 36px var(--accent-glow);
+  animation: logoPop 0.65s 0.08s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes logoPop {
+  from { opacity:0; transform: scale(0.55) rotate(-12deg); }
+  to   { opacity:1; transform: scale(1) rotate(0deg); }
+}
+h1 {
+  font-family: 'DM Serif Display', serif; font-size: 2.4rem;
+  font-weight: 400; letter-spacing: -0.025em; line-height: 1.1;
+}
+h1 em { color: var(--accent); font-style: italic; }
+.subtitle {
+  color: var(--text-muted); font-size: 0.7rem;
+  letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.6rem;
+}
+
+/* ── Search card ── */
+.search-card {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 16px; padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.5s 0.12s ease both;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 28px var(--shadow);
+}
+.search-card:focus-within {
+  border-color: var(--border-light);
+  box-shadow: 0 8px 44px var(--shadow);
+}
+.search-label {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-muted); margin-bottom: 0.8rem;
+}
+.pulse-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  animation: pulse 2.2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; transform: scale(1); }
+  50%      { opacity:0.45; transform: scale(0.65); }
+}
+.search-row { display: flex; gap: 0.6rem; }
+.search-input {
+  flex: 1; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--text); font-family: 'DM Mono', monospace;
+  font-size: 0.82rem; padding: 0.82rem 1rem; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s; min-width: 0;
+}
+.search-input::placeholder { color: var(--text-muted); }
+.search-input:focus {
+  border-color: rgba(252,60,68,0.4);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.search-btn {
+  background: linear-gradient(135deg, var(--accent), #d42028);
+  border: none; border-radius: 10px; color: #fff;
+  font-family: 'DM Mono', monospace; font-size: 0.78rem; font-weight: 500;
+  padding: 0.82rem 1.35rem; cursor: pointer; white-space: nowrap;
+  letter-spacing: 0.05em;
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 18px var(--accent-glow);
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.search-btn:hover { opacity: 0.87; box-shadow: 0 6px 26px var(--accent-glow); }
+.search-btn:active { transform: scale(0.96); }
+.search-btn:disabled { opacity: 0.32; cursor: not-allowed; transform: none; }
+
+/* ── Spotify search results ── */
+.search-results { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.4rem; }
+.sr-item {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 0.7rem 0.875rem; cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+  display: flex; align-items: center; gap: 0.75rem;
+  opacity: 0; animation: fadeUp 0.22s ease forwards;
+}
+.sr-item:hover {
+  border-color: rgba(29,185,84,0.35); background: var(--spotify-glow);
+  transform: translateX(4px);
+}
+.sr-img { width: 42px; height: 42px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: var(--border); }
+.sr-ph  { width: 42px; height: 42px; border-radius: 6px; background: var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: var(--text-muted); }
+.sr-info { flex: 1; min-width: 0; }
+.sr-name { font-size: 0.78rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sr-meta { font-size: 0.63rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.15rem; }
+.sr-arrow { color: var(--spotify); font-size: 0.9rem; flex-shrink: 0; transition: transform 0.15s; }
+.sr-item:hover .sr-arrow { transform: translateX(4px); }
+
+/* ── Result card ── */
+#result { display: none; }
+.result-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 4px 28px var(--shadow);
+  animation: fadeUp 0.32s ease both;
+}
+
+.track-header {
+  padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 0.875rem; flex-wrap: wrap;
+  background: var(--surface2);
+}
+.track-thumb {
+  width: 54px; height: 54px; border-radius: 9px; object-fit: cover;
+  flex-shrink: 0; box-shadow: 0 4px 14px var(--shadow);
+}
+.track-info { flex: 1; min-width: 0; }
+.track-name {
+  font-size: 0.92rem; font-weight: 500; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.track-artist {
+  font-size: 0.68rem; color: var(--text-muted); margin-top: 0.2rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.track-badges { display: flex; gap: 0.4rem; align-items: center; flex-shrink: 0; flex-wrap: wrap; }
+
+.badge {
+  font-size: 0.59rem; letter-spacing: 0.07em; text-transform: uppercase;
+  padding: 0.28em 0.65em; border-radius: 5px; font-weight: 500;
+  display: inline-flex; align-items: center; gap: 0.3rem;
+}
+.badge.apple   { background: rgba(252,60,68,0.1);  color: var(--accent); border: 1px solid rgba(252,60,68,0.22); }
+.badge.spotify { background: rgba(29,185,84,0.1);   color: var(--spotify); border: 1px solid rgba(29,185,84,0.22); }
+.badge.word    { background: rgba(96,165,250,0.1);  color: #60a5fa; border: 1px solid rgba(96,165,250,0.22); }
+.badge.line    { background: rgba(251,191,36,0.12); color: var(--yellow); border: 1px solid rgba(251,191,36,0.22); }
+.badge.unsynced{ background: rgba(107,107,128,0.12); color: var(--text-muted); border: 1px solid var(--border); }
+
+.sync-info {
+  padding: 0.85rem 1.5rem; border-bottom: 1px solid var(--border);
+  font-size: 0.7rem; color: var(--text-muted); line-height: 1.65;
+  display: flex; align-items: flex-start; gap: 0.5rem;
+}
+.sync-icon { font-size: 0.9rem; flex-shrink: 0; margin-top: 0.05rem; }
+.sync-info strong { color: var(--text); }
+
+.sources-bar {
+  padding: 0.7rem 1.5rem; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;
+  font-size: 0.66rem; color: var(--text-muted);
+}
+.meta-row {
+  padding: 0.7rem 1.5rem; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;
+  font-size: 0.66rem; color: var(--text-muted);
+}
+.row-label { text-transform: uppercase; letter-spacing: 0.1em; flex-shrink: 0; }
+.tag {
+  background: var(--border); color: var(--text);
+  padding: 0.2em 0.6em; border-radius: 4px; font-size: 0.61rem;
+}
+
+/* ── Downloads ── */
+.downloads-section { padding: 1.25rem 1.5rem; }
+.downloads-label {
+  font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-muted); margin-bottom: 0.875rem;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.download-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.6rem;
+}
+.dl-wrap { display: flex; flex-direction: column; gap: 0.35rem; }
+.dl-btn {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+  color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.7rem;
+  padding: 0.72rem 0.9rem; cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s, box-shadow 0.15s;
+  text-align: left; display: flex; align-items: center; gap: 0.5rem; width: 100%;
+}
+.dl-btn:hover {
+  border-color: rgba(252,60,68,0.32); background: var(--accent-glow);
+  transform: translateY(-2px); box-shadow: 0 5px 18px var(--accent-glow);
+}
+.dl-btn:active { transform: translateY(0); }
+.dl-icon { font-size: 1rem; flex-shrink: 0; }
+.dl-text { display: flex; flex-direction: column; }
+.dl-fmt  { font-weight: 500; font-size: 0.76rem; color: var(--accent); }
+.dl-desc { color: var(--text-muted); font-size: 0.61rem; margin-top: 0.1rem; }
+
+/* Format badges under buttons */
+.fmt-badge {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.57rem; letter-spacing: 0.05em; text-transform: uppercase;
+  padding: 0.22em 0.55em; border-radius: 4px; font-weight: 500;
+  align-self: flex-start; margin-left: 2px; width: fit-content;
+}
+.fmt-badge.compat {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: #fff;
+}
+.fmt-badge.neutral {
+  background: var(--border); color: var(--text-muted);
+  border: 1px solid var(--border-light);
+}
+
+/* CapCut badge */
+.capcut-badge {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.57rem; letter-spacing: 0.05em; text-transform: uppercase;
+  background: linear-gradient(135deg, #7c3aed, #a855f7); color: #fff;
+  padding: 0.22em 0.55em; border-radius: 4px; font-weight: 500;
+  align-self: flex-start; margin-left: 2px;
+}
+
+/* ── Error ── */
+.error-card {
+  background: rgba(252,60,68,0.05); border: 1px solid rgba(252,60,68,0.2);
+  border-radius: 14px; padding: 1.25rem 1.5rem;
+  display: flex; gap: 0.75rem; align-items: flex-start;
+  animation: shake 0.35s ease;
+}
+@keyframes shake {
+  0%,100% { transform:translateX(0); } 20% { transform:translateX(-6px); }
+  40% { transform:translateX(6px); } 60% { transform:translateX(-4px); } 80% { transform:translateX(4px); }
+}
+.error-icon  { color: var(--accent); font-size: 1.1rem; flex-shrink: 0; }
+.error-title { font-size: 0.8rem; color: var(--accent); font-weight: 500; margin-bottom: 0.25rem; }
+.error-msg   { font-size: 0.7rem; color: var(--text-muted); line-height: 1.5; }
+
+/* ── Loading ── */
+.loading-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  padding: 2.25rem 1.5rem; text-align: center; color: var(--text-muted);
+  font-size: 0.74rem; animation: fadeUp 0.28s ease both;
+}
+.spinner-wrap { position: relative; width: 36px; height: 36px; margin: 0 auto 1rem; }
+.spinner-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 2.5px solid transparent; animation: spin 1s linear infinite;
+}
+.spinner-ring:nth-child(1) { border-top-color: var(--accent); }
+.spinner-ring:nth-child(2) { border-right-color: rgba(252,60,68,0.3); animation-delay: 0.15s; animation-duration: 1.4s; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-steps { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.75rem; }
+.loading-step  { font-size: 0.66rem; color: var(--text-faint); transition: color 0.3s; display: flex; align-items: center; justify-content: center; gap: 0.4rem; }
+.loading-step.active { color: var(--text-muted); }
+.loading-step.done   { color: var(--green); }
+
+@keyframes fadeUp   { from { opacity:0; transform:translateY(13px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeDown { from { opacity:0; transform:translateY(-9px); } to { opacity:1; transform:translateY(0); } }
+
+footer {
+  margin-top: 3rem; text-align: center; font-size: 0.62rem;
+  color: var(--text-muted); letter-spacing: 0.05em;
+  animation: fadeUp 0.5s 0.28s ease both;
+}
+</style>
+</head>
+<body>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<div class="container">
+  <div class="topbar">
+    <button class="topbar-btn" onclick="toggleTheme()" id="themeBtn">🌙 <span id="themeLbl">Dark</span></button>
+    <div class="topbar-sep"></div>
+    <button class="topbar-btn active" data-lang="en" onclick="setLang('en')">EN</button>
+    <span class="lang-dot">·</span>
+    <button class="topbar-btn" data-lang="es" onclick="setLang('es')">ES</button>
+    <span class="lang-dot">·</span>
+    <button class="topbar-btn" data-lang="de" onclick="setLang('de')">DE</button>
+  </div>
+
+  <header>
+    <div class="logo-wrap">♪</div>
+    <h1>Lyrics <em>Downloader</em></h1>
+    <p class="subtitle" data-i18n="subtitle">Apple Music &amp; Spotify · Lyrics Extraction</p>
+  </header>
+
+  <div class="search-card">
+    <div class="search-label">
+      <div class="pulse-dot"></div>
+      <span data-i18n="searchLabel">Search or paste a link</span>
+    </div>
+    <div class="search-row">
+      <input type="text" class="search-input" id="mainInput"
+        data-i18n-ph="placeholder"
+        placeholder="Song title, artist, Apple Music or Spotify URL…" />
+      <button class="search-btn" id="mainBtn" onclick="handleInput()">
+        <span>⌕</span><span data-i18n="fetchBtn">Fetch</span>
+      </button>
+    </div>
+    <div id="searchResults" class="search-results"></div>
+  </div>
+
+  <div id="result"></div>
+
+  <footer data-i18n="footer">Not affiliated with Apple or Spotify · For personal use only</footer>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  i18n
+// ══════════════════════════════════════════════════════
+const I18N = {
+  en: {
+    subtitle:'Apple Music & Spotify · Lyrics Extraction',
+    searchLabel:'Search or paste a link',
+    placeholder:'Song title, artist, Apple Music or Spotify URL…',
+    fetchBtn:'Fetch',
+    footer:'Not affiliated with Apple or Spotify · For personal use only',
+    ld1:'Detecting source…', ld2:'Fetching track info…', ld3:'Downloading lyrics…',
+    searching:'Searching Spotify…',
+    noResults:'No results found.',
+    syncWord:'Word-Synced', syncLine:'Line-Synced', syncUnsynced:'Unsynced',
+    sdWord:'<strong>Word-Synced</strong> — timestamps on every word.',
+    sdLine:'<strong>Line-Synced</strong> — timestamps per line. Great for karaoke.',
+    sdUnsynced:'<strong>Unsynced</strong> — no timing data. Text only.',
+    songwriters:'Songwriters', alsoOn:'Also on', downloadAs:'Download as',
+    errInvalid:'Invalid input', errInvalidMsg:'Could not identify a track. Try pasting a link or searching by title.',
+    errNotFound:'Lyrics not found', errNotFoundMsg:'No lyrics available for this track.',
+    errServer:'Server error', errNetwork:'Network error',
+    capcut:'CapCut compatible',
+    ttmlLabel:'Apple TTML', srtLabel:'SubRip (SRT)', lrcLabel:'LRC Format', txtLabel:'Plain Text',
+    ttmlBadge:'Apple format', srtBadge:'Most compatible', lrcBadge:'Standard format', txtBadge:'Smallest filesize',
+    themeLight:'Light', themeDark:'Dark',
+    fallbackLrclib:'Lyrics via lrclib.net',
+  },
+  es: {
+    subtitle:'Apple Music & Spotify · Extracción de Letras',
+    searchLabel:'Busca o pega un enlace',
+    placeholder:'Título, artista, enlace de Apple Music o Spotify…',
+    fetchBtn:'Buscar',
+    footer:'No afiliado con Apple ni Spotify · Solo para uso personal',
+    ld1:'Detectando fuente…', ld2:'Obteniendo info del track…', ld3:'Descargando letra…',
+    searching:'Buscando en Spotify…',
+    noResults:'Sin resultados.',
+    syncWord:'Sincron. por Palabra', syncLine:'Sincron. por Línea', syncUnsynced:'Sin Sincronizar',
+    sdWord:'<strong>Sincron. por Palabra</strong> — timestamp en cada palabra.',
+    sdLine:'<strong>Sincron. por Línea</strong> — timestamp por línea.',
+    sdUnsynced:'<strong>Sin Sincronizar</strong> — sin datos de tiempo.',
+    songwriters:'Compositores', alsoOn:'También en', downloadAs:'Descargar como',
+    errInvalid:'Entrada inválida', errInvalidMsg:'No se pudo identificar el track.',
+    errNotFound:'Letra no encontrada', errNotFoundMsg:'No hay letra disponible para este track.',
+    errServer:'Error del servidor', errNetwork:'Error de red',
+    capcut:'Compatible con CapCut',
+    ttmlLabel:'Apple TTML', srtLabel:'SubRip (SRT)', lrcLabel:'Formato LRC', txtLabel:'Texto Plano',
+    ttmlBadge:'Formato Apple', srtBadge:'Más compatible', lrcBadge:'Formato estándar', txtBadge:'Menor tamaño',
+    themeLight:'Claro', themeDark:'Oscuro',
+    fallbackLrclib:'Letra vía lrclib.net',
+  },
+  de: {
+    subtitle:'Apple Music & Spotify · Lyrics-Extraktion',
+    searchLabel:'Suchen oder Link einfügen',
+    placeholder:'Titel, Künstler, Apple Music- oder Spotify-Link…',
+    fetchBtn:'Laden',
+    footer:'Nicht mit Apple oder Spotify verbunden · Nur für den persönlichen Gebrauch',
+    ld1:'Quelle wird erkannt…', ld2:'Track-Info wird abgerufen…', ld3:'Lyrics werden geladen…',
+    searching:'Spotify wird durchsucht…',
+    noResults:'Keine Ergebnisse.',
+    syncWord:'Wort-synchronisiert', syncLine:'Zeilen-synchronisiert', syncUnsynced:'Nicht synchronisiert',
+    sdWord:'<strong>Wort-synchronisiert</strong> — Timestamp für jedes Wort.',
+    sdLine:'<strong>Zeilen-synchronisiert</strong> — Timestamp pro Zeile.',
+    sdUnsynced:'<strong>Nicht synchronisiert</strong> — keine Zeitdaten.',
+    songwriters:'Songwriter', alsoOn:'Auch auf', downloadAs:'Herunterladen als',
+    errInvalid:'Ungültige Eingabe', errInvalidMsg:'Kein Track erkannt. Bitte Link einfügen oder nach Titel suchen.',
+    errNotFound:'Keine Lyrics gefunden', errNotFoundMsg:'Für diesen Track sind keine Lyrics verfügbar.',
+    errServer:'Serverfehler', errNetwork:'Netzwerkfehler',
+    capcut:'CapCut-kompatibel',
+    ttmlLabel:'Apple TTML', srtLabel:'SubRip (SRT)', lrcLabel:'LRC-Format', txtLabel:'Klartext',
+    ttmlBadge:'Apple-Format', srtBadge:'Beste Kompatibilität', lrcBadge:'Standardformat', txtBadge:'Kleinste Dateigröße',
+    themeLight:'Hell', themeDark:'Dunkel',
+    fallbackLrclib:'Lyrics von lrclib.net',
+  }
+};
+let lang = 'en';
+const t = k => I18N[lang][k] || I18N.en[k] || k;
+
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('[data-lang]').forEach(b => b.classList.toggle('active', b.dataset.lang === l));
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  updateThemeBtn();
+}
+
+// ══════════════════════════════════════════════════════
+//  Theme
+// ══════════════════════════════════════════════════════
+let dark = true;
+function toggleTheme() {
+  dark = !dark;
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  updateThemeBtn();
+}
+function updateThemeBtn() {
+  document.getElementById('themeBtn').innerHTML =
+    `${dark ? '🌙' : '☀️'} <span id="themeLbl">${dark ? t('themeDark') : t('themeLight')}</span>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  URL params & deep-linking
+// ══════════════════════════════════════════════════════
+function setParam(key, val) {
+  const u = new URL(location.href);
+  if (val == null) u.searchParams.delete(key);
+  else u.searchParams.set(key, val);
+  history.replaceState(null, '', u.toString());
+}
+function getParam(k) { return new URL(location.href).searchParams.get(k); }
+
+function pushSearch(query) {
+  setParam('search', query);
+  setParam('url', null);
+}
+function pushUrl(url) {
+  setParam('url', url);
+  setParam('search', null);
+}
+function clearParams() {
+  setParam('url', null);
+  setParam('search', null);
+}
+
+// ══════════════════════════════════════════════════════
+//  State
+// ══════════════════════════════════════════════════════
+let spotifyToken = null;
+
+// ══════════════════════════════════════════════════════
+//  Main entry point
+// ══════════════════════════════════════════════════════
+async function handleInput() {
+  const raw = document.getElementById('mainInput').value.trim();
+  if (!raw) return;
+  clearResultArea();
+
+  const appleId = extractAppleId(raw);
+  if (appleId) {
+    pushUrl(raw);
+    await fetchAppleLyrics(appleId);
+    return;
+  }
+  const spotifyId = extractSpotifyId(raw);
+  if (spotifyId) {
+    pushUrl(raw);
+    await handleSpotifyId(spotifyId);
+    return;
+  }
+  pushSearch(raw);
+  await searchSpotify(raw);
+}
+
+// ══════════════════════════════════════════════════════
+//  ID extractors
+// ══════════════════════════════════════════════════════
+function extractAppleId(s) {
+  if (/^\d{7,12}$/.test(s.trim())) return s.trim();
+  const m = s.match(/[?&]i=(\d{7,12})|\/(\d{7,12})(?:[/?#]|$)/);
+  return m ? (m[1]||m[2]) : null;
+}
+function extractSpotifyId(s) {
+  if (/^[A-Za-z0-9]{22}$/.test(s.trim())) return s.trim();
+  const m = s.match(/track\/([A-Za-z0-9]{22})/);
+  return m ? m[1] : null;
+}
+
+// ══════════════════════════════════════════════════════
+//  Apple Music lyrics
+// ══════════════════════════════════════════════════════
+async function fetchAppleLyrics(trackId, extraMeta = {}) {
+  disableBtn(true);
+  showLoading();
+  try {
+    updateStep(1);
+    const res  = await fetch(`https://a.paxsenix.org/lyrics/${trackId}`);
+    const data = await res.json();
+    updateStep(2);
+    if (!res.ok) {
+      // Try lrclib as fallback if Apple returns 404
+      if (res.status === 404 && extraMeta.trackName) {
+        await tryLrclibFallback(extraMeta);
+        return;
+      }
+      showError(res.status === 404 ? t('errNotFound') : t('errServer'), data.error || '');
+      return;
+    }
+    updateStep(3);
+    const syncMode = detectAppleSync(data);
+    showResult({
+      trackId, source: 'apple', syncMode,
+      lrcContent:   data.lrc || buildAppleLrc(data),
+      ttmlContent:  data.ttml_content || null,
+      plainContent: data.plain || buildAppleTxt(data),
+      songwriters:  data.metadata?.songwriters || [],
+      ...extraMeta,
+    });
+  } catch(e) {
+    if (extraMeta.trackName) { await tryLrclibFallback(extraMeta); return; }
+    showError(t('errNetwork'), e.message);
+  } finally { disableBtn(false); }
+}
+
+function detectAppleSync(d) {
+  const m = (d.timing_mode||'').toLowerCase();
+  if (m==='word') return 'word';
+  if (m==='line') return 'line';
+  if (d.lyrics?.length && d.lyrics[0].timestamp) return 'line';
+  return 'unsynced';
+}
+function buildAppleLrc(d) {
+  return (d.lyrics||[]).map(l=>`${msToLRC(l.timestamp)}${l.main_lyric.map(w=>w.text).join(' ')}`).join('\n');
+}
+function buildAppleTxt(d) {
+  return (d.lyrics||[]).map(l=>l.main_lyric.map(w=>w.text).join(' ')).join('\n');
+}
+
+// ══════════════════════════════════════════════════════
+//  Spotify → song.link (via corsproxy) → Apple fallback
+// ══════════════════════════════════════════════════════
+async function handleSpotifyId(spotifyId) {
+  disableBtn(true);
+  showLoading();
+  try {
+    updateStep(1);
+    const slUrl = `https://api.song.link/v1-alpha.1/links?url=spotify:track:${spotifyId}`;
+    const res   = await fetch(`https://corsproxy.io/?url=${encodeURIComponent(slUrl)}`);
+    const sl    = await res.json();
+    updateStep(2);
+
+    // Extract Apple Music track ID
+    const itunesEntity = sl.entitiesByUniqueId
+      ? Object.values(sl.entitiesByUniqueId).find(e => e.apiProvider === 'itunes')
+      : null;
+    const spotifyEntity = sl.entitiesByUniqueId
+      ? Object.values(sl.entitiesByUniqueId).find(e => e.apiProvider === 'spotify')
+      : null;
+
+    const platforms = buildPlatformList(sl.linksByPlatform);
+
+    const spotifyMeta = spotifyEntity ? {
+      trackName: spotifyEntity.title,
+      trackArtist: spotifyEntity.artistName,
+      trackThumb: spotifyEntity.thumbnailUrl,
+    } : {};
+
+    if (itunesEntity) {
+      const appleMeta = {
+        trackName: itunesEntity.title,
+        trackArtist: itunesEntity.artistName,
+        trackThumb: itunesEntity.thumbnailUrl,
+        platforms,
+        _spotifyId: spotifyId,
+      };
+      await fetchAppleLyrics(itunesEntity.id, appleMeta);
+    } else {
+      // No Apple ID found — use Spotify lyrics API
+      await fetchSpotifyLyrics(spotifyId, { ...spotifyMeta, platforms });
+    }
+  } catch(e) {
+    // corsproxy or song.link failed — try Spotify lyrics directly
+    await fetchSpotifyLyrics(spotifyId, {});
+  } finally { disableBtn(false); }
+}
+
+function buildPlatformList(links) {
+  if (!links) return [];
+  const map = {
+    spotify:     { label:'Spotify',      icon:'🎧' },
+    appleMusic:  { label:'Apple Music',  icon:'🎵' },
+    deezer:      { label:'Deezer',       icon:'🎶' },
+    tidal:       { label:'Tidal',        icon:'🌊' },
+    youtubeMusic:{ label:'YouTube Music',icon:'▶️' },
+    amazonMusic: { label:'Amazon Music', icon:'📦' },
+  };
+  return Object.entries(map).filter(([k])=>links[k]).map(([,v])=>v);
+}
+
+// ══════════════════════════════════════════════════════
+//  Spotify search
+// ══════════════════════════════════════════════════════
+async function getSpotifyToken() {
+  if (spotifyToken) return spotifyToken;
+  const r = await fetch('https://spotify-token-proxy.spotify-token-proxy-marcer.workers.dev/');
+  const d = await r.json();
+  spotifyToken = d.access_token;
+  setTimeout(() => { spotifyToken = null; }, 55*60*1000);
+  return spotifyToken;
+}
+
+async function searchSpotify(query) {
+  disableBtn(true);
+  showLoadingSimple(t('searching'));
+  try {
+    const token = await getSpotifyToken();
+    const res   = await fetch(
+      `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=6`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    const data   = await res.json();
+    const tracks = data.tracks?.items || [];
+    clearResultArea();
+    if (!tracks.length) {
+      document.getElementById('searchResults').innerHTML =
+        `<p style="font-size:.7rem;color:var(--text-muted);padding-top:.5rem">${escHtml(t('noResults'))}</p>`;
+      return;
+    }
+    renderTracks(tracks);
+  } catch(e) { showError(t('errNetwork'), e.message); }
+  finally { disableBtn(false); }
+}
+
+function renderTracks(tracks) {
+  window._tracks = tracks;
+  document.getElementById('searchResults').innerHTML = tracks.map((tr,i) => {
+    const img    = tr.album?.images?.[2]?.url || tr.album?.images?.[0]?.url || '';
+    const artist = tr.artists?.map(a=>a.name).join(', ') || '';
+    const imgEl  = img ? `<img class="sr-img" src="${escHtml(img)}" alt="" loading="lazy">`
+                       : `<div class="sr-ph">♪</div>`;
+    return `<div class="sr-item" style="animation-delay:${i*.05}s" onclick="pickTrack(${i})">
+      ${imgEl}
+      <div class="sr-info">
+        <div class="sr-name">${escHtml(tr.name)}</div>
+        <div class="sr-meta">${escHtml(artist)} · ${escHtml(tr.album?.name||'')}</div>
+      </div>
+      <span class="sr-arrow">→</span>
+    </div>`;
+  }).join('');
+}
+
+async function pickTrack(i) {
+  const tr = window._tracks[i];
+  document.getElementById('searchResults').innerHTML = '';
+  // Set the input + url param to the Spotify URL for this track
+  const spotifyUrl = `https://open.spotify.com/track/${tr.id}`;
+  document.getElementById('mainInput').value = spotifyUrl;
+  pushUrl(spotifyUrl);
+  await handleSpotifyId(tr.id);
+}
+
+// ══════════════════════════════════════════════════════
+//  Spotify lyrics API (fallback 1)
+// ══════════════════════════════════════════════════════
+async function fetchSpotifyLyrics(spotifyId, meta) {
+  disableBtn(true);
+  try {
+    updateStep(3);
+    const res  = await fetch(`https://spotify-lyrics-api-pi.vercel.app/?trackid=${spotifyId}&format=lrc`);
+    const data = await res.json();
+    if (data.error || !data.lines?.length) {
+      // Fallback to lrclib
+      await tryLrclibFallback(meta);
+      return;
+    }
+    const syncMode = data.syncType === 'LINE_SYNCED' ? 'line' : 'unsynced';
+    showResult({
+      trackId: spotifyId, source: 'spotify', syncMode,
+      lrcContent:   buildSpotifyLrc(data.lines),
+      ttmlContent:  null,
+      plainContent: buildSpotifyTxt(data.lines),
+      ...meta,
+    });
+  } catch(e) {
+    await tryLrclibFallback(meta);
+  } finally { disableBtn(false); }
+}
+
+function buildSpotifyLrc(lines) {
+  return lines.filter(l=>l.words&&l.words.trim()&&l.words!=='♪').map(l=>`[${l.timeTag}]${l.words}`).join('\n');
+}
+function buildSpotifyTxt(lines) {
+  return lines.filter(l=>l.words&&l.words.trim()&&l.words!=='♪').map(l=>l.words).join('\n');
+}
+
+// ══════════════════════════════════════════════════════
+//  lrclib fallback (fallback 2)
+// ══════════════════════════════════════════════════════
+async function tryLrclibFallback(meta) {
+  const { trackName, trackArtist } = meta || {};
+  if (!trackName) { showError(t('errNotFound'), t('errNotFoundMsg')); return; }
+  try {
+    updateStep(3);
+    const q = encodeURIComponent(`${trackName} ${trackArtist||''}`);
+    const res  = await fetch(`https://lrclib.net/api/search?q=${q}`);
+    const list = await res.json();
+    if (!Array.isArray(list) || !list.length) {
+      showError(t('errNotFound'), t('errNotFoundMsg'));
+      return;
+    }
+    // Pick best match: prefer synced
+    const synced   = list.find(x => x.syncedLyrics);
+    const unsynced = list.find(x => x.plainLyrics);
+    const pick     = synced || unsynced;
+    if (!pick) { showError(t('errNotFound'), t('errNotFoundMsg')); return; }
+
+    const syncMode = pick.syncedLyrics ? 'line' : 'unsynced';
+    showResult({
+      trackId: meta._spotifyId || (pick.trackName||'track').replace(/\s+/g,'_'),
+      source: meta.source || 'spotify',
+      syncMode,
+      lrcContent:   pick.syncedLyrics || '',
+      ttmlContent:  null,
+      plainContent: pick.plainLyrics  || '',
+      lyricSource:  t('fallbackLrclib'),
+      ...meta,
+    });
+  } catch(e) { showError(t('errNetwork'), e.message); }
+}
+
+// ══════════════════════════════════════════════════════
+//  Show result
+// ══════════════════════════════════════════════════════
+function showResult({ trackId, source, syncMode, lrcContent, ttmlContent, plainContent,
+                      songwriters, trackName, trackArtist, trackThumb, platforms, lyricSource }) {
+  const syncKey     = { word:'syncWord', line:'syncLine', unsynced:'syncUnsynced' };
+  const syncDescKey = { word:'sdWord',   line:'sdLine',   unsynced:'sdUnsynced'   };
+  const syncIcon    = { word:'✦',        line:'⏤',        unsynced:'○'           };
+
+  const thumbHtml = trackThumb ? `<img class="track-thumb" src="${escHtml(trackThumb)}" alt="">` : '';
+  const infoHtml  = trackName
+    ? `${thumbHtml}<div class="track-info"><div class="track-name">${escHtml(trackName)}</div><div class="track-artist">${escHtml(trackArtist||'')}</div></div>`
+    : `<div class="track-info"><div class="track-name" style="font-size:.75rem;color:var(--text-muted)">${escHtml(trackId)}</div></div>`;
+
+  const platformsHtml = platforms?.length
+    ? `<div class="sources-bar"><span class="row-label">${t('alsoOn')}</span>${platforms.map(p=>`<span class="tag">${p.icon} ${p.label}</span>`).join('')}</div>` : '';
+
+  const metaHtml = songwriters?.length
+    ? `<div class="meta-row"><span class="row-label">${t('songwriters')}</span>${songwriters.map(s=>`<span class="tag">${escHtml(s)}</span>`).join('')}</div>` : '';
+
+  const srcHtml = lyricSource
+    ? `<div class="meta-row"><span class="row-label">Source</span><span class="tag">🔤 ${escHtml(lyricSource)}</span></div>` : '';
+
+  const formats = buildFormats(syncMode, source, !!ttmlContent);
+  const btnsHtml = formats.map(f => {
+    const isCapCut = f.id === 'srt';
+    const isSrt    = f.id === 'srt';
+    const badgeClass = isSrt ? 'compat' : 'neutral';
+    const badgeLabel = t(`${f.id}Badge`);
+    return `<div class="dl-wrap">
+      <button class="dl-btn" onclick="doDownload('${f.id}')">
+        <span class="dl-icon">${f.icon}</span>
+        <span class="dl-text">
+          <span class="dl-fmt">.${f.ext}</span>
+          <span class="dl-desc">${f.label}</span>
+        </span>
+      </button>
+      <span class="fmt-badge ${badgeClass}">${badgeLabel}</span>
+      ${isCapCut ? `<span class="capcut-badge">✂ ${t('capcut')}</span>` : ''}
+    </div>`;
+  }).join('');
+
+  const d = document.getElementById('result');
+  d.style.display = 'block';
+  d.innerHTML = `<div class="result-card">
+    <div class="track-header">
+      ${infoHtml}
+      <div class="track-badges">
+        <span class="badge ${source}">${source==='apple'?'🎵 Apple Music':'🎧 Spotify'}</span>
+        <span class="badge ${syncMode}">${syncIcon[syncMode]} ${t(syncKey[syncMode])}</span>
+      </div>
+    </div>
+    <div class="sync-info">
+      <span class="sync-icon">${syncIcon[syncMode]}</span>
+      <span>${t(syncDescKey[syncMode])}</span>
+    </div>
+    ${platformsHtml}${metaHtml}${srcHtml}
+    <div class="downloads-section">
+      <div class="downloads-label">⬇ ${t('downloadAs')}</div>
+      <div class="download-grid">${btnsHtml}</div>
+    </div>
+  </div>`;
+
+  window._dl = { trackId, lrcContent, ttmlContent, plainContent };
+
+  // Handle autodl param
+  const autodl = getParam('autodl');
+  if (autodl) {
+    const pref = autodl === 'auto' ? ['ttml','srt','lrc','txt'] : [autodl];
+    for (const fmt of pref) {
+      if (formats.find(f=>f.id===fmt)) { doDownload(fmt); break; }
+    }
+  }
+}
+
+function buildFormats(syncMode, source, hasTtml) {
+  const f = [];
+  if (syncMode==='word'||syncMode==='line') {
+    if (source==='apple' && hasTtml) f.push({ id:'ttml', ext:'ttml', label:t('ttmlLabel'), icon:'📄' });
+    f.push({ id:'srt', ext:'srt', label:t('srtLabel'), icon:'🎬' });
+  }
+  if (syncMode==='line'||syncMode==='unsynced') {
+    f.push({ id:'lrc', ext:'lrc', label:t('lrcLabel'), icon:'🎤' });
+  }
+  f.push({ id:'txt', ext:'txt', label:t('txtLabel'), icon:'📝' });
+  return f;
+}
+
+function doDownload(fmt) {
+  const { trackId, lrcContent, ttmlContent, plainContent } = window._dl;
+  let content = '';
+  if (fmt==='ttml') content = ttmlContent||'';
+  else if (fmt==='srt') content = lrcToSRT(lrcContent);
+  else if (fmt==='lrc') content = lrcContent||'';
+  else if (fmt==='txt') content = plainContent||'';
+  dlBlob(content, `${trackId}.${fmt}`);
+}
+
+function dlBlob(content, name) {
+  const url = URL.createObjectURL(new Blob([content],{type:'text/plain;charset=utf-8'}));
+  const a = document.createElement('a'); a.href=url; a.download=name; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════════════════════════
+//  Format converters
+// ══════════════════════════════════════════════════════
+function lrcTagMs(tag) {
+  const m = tag.match(/(\d+):(\d+)\.(\d+)/);
+  if (!m) return 0;
+  const frac = m[3].length===3 ? parseInt(m[3]) : parseInt(m[3])*10;
+  return (parseInt(m[1])*60+parseInt(m[2]))*1000+frac;
+}
+function msToLRC(ms) {
+  const m=Math.floor(ms/60000).toString().padStart(2,'0');
+  const s=Math.floor((ms%60000)/1000).toString().padStart(2,'0');
+  const c=Math.floor((ms%1000)/10).toString().padStart(2,'0');
+  return `[${m}:${s}.${c}]`;
+}
+function msSRT(ms) {
+  const h=Math.floor(ms/3600000).toString().padStart(2,'0');
+  const m=Math.floor((ms%3600000)/60000).toString().padStart(2,'0');
+  const s=Math.floor((ms%60000)/1000).toString().padStart(2,'0');
+  const x=(ms%1000).toString().padStart(3,'0');
+  return `${h}:${m}:${s},${x}`;
+}
+function lrcToSRT(lrc) {
+  if (!lrc) return '';
+  const lines = lrc.split('\n').filter(l=>/^\[\d+:\d+\.\d+\]/.test(l));
+  return lines.map((line,i)=>{
+    const tM = line.match(/^\[(\d+:\d+\.\d+)\]/);
+    if (!tM) return '';
+    const text = line.replace(/^\[\d+:\d+\.\d+\]/,'').trim();
+    const sMs  = lrcTagMs(tM[1]);
+    const nM   = lines[i+1]?.match(/^\[(\d+:\d+\.\d+)\]/);
+    const eMs  = nM ? lrcTagMs(nM[1])-10 : sMs+3000;
+    return `${i+1}\n${msSRT(sMs)} --> ${msSRT(eMs)}\n${text}\n`;
+  }).filter(Boolean).join('\n');
+}
+
+// ══════════════════════════════════════════════════════
+//  UI helpers
+// ══════════════════════════════════════════════════════
+function showLoading() {
+  const d = document.getElementById('result');
+  d.style.display='block';
+  d.innerHTML=`<div class="loading-card">
+    <div class="spinner-wrap"><div class="spinner-ring"></div><div class="spinner-ring"></div></div>
+    <div style="font-weight:500">${t('ld1')}</div>
+    <div class="loading-steps">
+      <div class="loading-step active" id="ls1">○ ${t('ld1')}</div>
+      <div class="loading-step" id="ls2">○ ${t('ld2')}</div>
+      <div class="loading-step" id="ls3">○ ${t('ld3')}</div>
+    </div>
+  </div>`;
+}
+function showLoadingSimple(msg) {
+  const d=document.getElementById('result'); d.style.display='block';
+  d.innerHTML=`<div class="loading-card">
+    <div class="spinner-wrap"><div class="spinner-ring"></div><div class="spinner-ring"></div></div>
+    <div>${escHtml(msg)}</div>
+  </div>`;
+}
+function updateStep(n) {
+  for (let i=1;i<=3;i++) {
+    const el=document.getElementById('ls'+i); if(!el) continue;
+    if(i<n){el.className='loading-step done'; el.textContent='✓ '+el.textContent.replace(/^[○✓] /,'');}
+    else if(i===n) el.className='loading-step active';
+    else el.className='loading-step';
+  }
+}
+function showError(title, msg) {
+  const d=document.getElementById('result'); d.style.display='block';
+  d.innerHTML=`<div class="error-card">
+    <span class="error-icon">✕</span>
+    <div><div class="error-title">${escHtml(title)}</div><div class="error-msg">${escHtml(msg)}</div></div>
+  </div>`;
+}
+function clearResultArea() {
+  const d=document.getElementById('result'); d.style.display='none'; d.innerHTML='';
+  document.getElementById('searchResults').innerHTML='';
+}
+function disableBtn(v) { document.getElementById('mainBtn').disabled=v; }
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ══════════════════════════════════════════════════════
+//  Init — handle URL params on load
+// ══════════════════════════════════════════════════════
+document.getElementById('mainInput').addEventListener('keydown', e => { if(e.key==='Enter') handleInput(); });
+
+setLang('en');
+
+(async function init() {
+  const urlParam    = getParam('url');
+  const searchParam = getParam('search');
+
+  if (urlParam) {
+    document.getElementById('mainInput').value = urlParam;
+    const appleId   = extractAppleId(urlParam);
+    const spotifyId = extractSpotifyId(urlParam);
+    if (appleId)   { await fetchAppleLyrics(appleId); }
+    else if (spotifyId) { await handleSpotifyId(spotifyId); }
+  } else if (searchParam) {
+    document.getElementById('mainInput').value = searchParam;
+    await searchSpotify(searchParam);
+  }
+})();
+</script>
+</body>
+</html>
