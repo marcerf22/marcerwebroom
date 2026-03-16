@@ -142,12 +142,20 @@
         #showOldSiteBtn.visible {
             display: flex;
         }
+
+        #something-new-is-happening {
+            display: none;
+        }
+
+        #something-new-is-happening.visible {
+            display: block;
+        }
     </style>
 </head>
 
 
 <body>
-    <script>   
+    <script>
         function openAppleRip() {
             window.open('/apple-rip.html', '_blank');
         }
@@ -252,26 +260,48 @@
         function showOldSite() {
             document.getElementsByClassName('old-site')[0].classList.add('visible');
             document.getElementById('showOldSiteBtn').classList.remove('visible');
+            document.getElementById('something-new-is-happening').classList.remove('visible');
         }
 
         function hideOldSite() {
             document.getElementsByClassName('old-site')[0].classList.remove('visible');
             document.getElementById('showOldSiteBtn').classList.add('visible');
+            document.getElementById('something-new-is-happening').classList.add('visible');
         }
     </script>
 
 
     <div id="header">
-        <h1 onclick="window.location.href='https://marcerwebroom.w3spaces.com'">marcerwebroom</h1>
-        <p onclick="window.location.href='/changelog.html'" class="opacity-hover">v2.0</p>
+        <h1 onclick="window.location.href='https://marcerwebroom.vercel.app'">marcerwebroom</h1>
+        <p onclick="window.location.href='/changelog.html'" class="opacity-hover">v1.0</p>
     </div>
 
-    
-    <button onclick="showOldSite()" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); align-items: center; gap: 8px; cursor: pointer;" id="showOldSiteBtn" class="visible"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>Show old site</button>
+    <h1 id="something-new-is-happening" class="visible" style="position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%); align-items: center; gap: 8px; cursor: pointer; font-size: 32px; font-family: Arial, serif; color: #fff;">Something new is happening...</h1>
+
+    <button onclick="showOldSite()"
+        style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); align-items: center; gap: 8px; cursor: pointer;"
+        id="showOldSiteBtn" class="visible"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye">
+            <path
+                d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+            <circle cx="12" cy="12" r="3" />
+        </svg>Show old site</button>
 
     <div class="old-site">
 
-    <button onclick="hideOldSite()">Hide old site</button>
+        <button onclick="hideOldSite()" id="showOldSiteBtn" class="visible"
+            style="align-items: center; gap: 8px; cursor: pointer;"><svg xmlns="http://www.w3.org/2000/svg" width="20"
+                height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-off-icon lucide-eye-off">
+                <path
+                    d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49">
+                </path>
+                <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"></path>
+                <path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143">
+                </path>
+                <path d="m2 2 20 20"></path>
+            </svg>Hide old site</button>
 
         <h1 class="section-title">Ripper</h1>
         <div class="ripper-section">
@@ -308,7 +338,11 @@
                 </svg></button>
             <div class="ripper-content">
                 <button onclick="openAm_dl()">am-dl </button>
-                <button onclick="openAppleRip()">AppleRip</button>
+                <button onclick="openAppleRip()" style="display: flex; align-items: center; gap: 8px;">
+                    AppleRip
+                    <div style="background: #ccc; padding: 4px; border-radius: 4px; color: #000; font-size: 12px;">BETA
+                    </div>
+                </button>
             </div>
         </div>
         <div class="ripper-section">
@@ -527,7 +561,8 @@
                 <path d="m9 15 3 3 3-3" />
             </svg>
             LYRIC-DL WEB
-            <div style="background: #ccc; padding: 4px; border-radius: 4px; color: #000; font-size: 12px;">BETA</div>
+            <div style="background: #ff0000; padding: 4px; border-radius: 4px; color: #fff; font-size: 12px;">OFFLINE
+            </div>
         </button>
         <button class="ripper-button" onclick="window.location.href='https://lrclib.net'"><img
                 src="data:image/png;base64,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"
