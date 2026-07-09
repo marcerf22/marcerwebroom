@@ -193,9 +193,6 @@
 
 <body>
     <script>
-        function openAppleRip() {
-            window.open('/apple-rip.html', '_blank');
-        }
 
         function openAudiomackRip() {
             window.open('/audiomack-rip.html', '_blank');
@@ -329,10 +326,10 @@
                 </svg></button>
             <div class="ripper-content">
                 <button onclick="openAm_dl()">am-dl </button>
-                <button onclick="window.location.href='apple-rip.html'" style="display: flex; align-items: center; gap: 8px;">
+                <button style="display: flex; align-items: center; gap: 8px; cursor: no-drop;">
                     AppleRip
-                    <div style="background: #ccc; padding: 4px; border-radius: 4px; color: #000; font-size: 12px;">BETA
-                    </div>
+                    <div style="background: #ff0000; padding: 4px; border-radius: 4px; color: #fff; font-size: 12px;">
+                        OFFLINE</div>
                 </button>
             </div>
         </div>
@@ -356,17 +353,17 @@
                 </svg></button>
             <div class="ripper-content">
                 <button onclick="openSquid()">squid.wtf</button>
-                <button style="display: flex; align-items: center; gap: 8px;">QQDL <div
+                <button style="display: flex; align-items: center; gap: 8px; cursor: no-drop;">QQDL <div
                         style="background: #ff0000; padding: 4px; border-radius: 4px; color: #fff; font-size: 12px;">
                         OFFLINE</div></button>
-                <button style="display: flex; align-items: center; gap: 8px;">BiniLossless <div
+                <button style="display: flex; align-items: center; gap: 8px; cursor: no-drop;">BiniLossless <div
                         style="background: #ff0000; padding: 4px; border-radius: 4px; color: #fff; font-size: 12px;">
                         OFFLINE</div></button>
                 <button onclick="openMonochromeTf()">Monochrome</button>
                 <button onclick="openMonochromePrigona()">Monochrome Mirror 1</button>
                 <button onclick="openMonochromePrigona()">Monochrome Mirror 2</button>
                 <button onclick="openLucida()">Lucida</button>
-                <button style="display: flex; align-items: center; gap: 8px;">Lucida Mirror <div
+                <button style="display: flex; align-items: center; gap: 8px; cursor: no-drop;">Lucida Mirror <div
                         style="background: #ff0000; padding: 4px; border-radius: 4px; color: #fff; font-size: 12px;">
                         OFFLINE</div></button>
                 <button onclick="openDoubleUS()">DoubleDouble (US)</button>
@@ -430,12 +427,12 @@
             <div class="ripper-content">
                 <button onclick="openJumoDL()">JumoDL</button>
                 <button onclick="openLucida()">Lucida</button>
-                <button style="display: flex; align-items: center; gap: 8px;">Lucida Mirror <div
+                <button style="display: flex; align-items: center; gap: 8px; cursor: no-drop;">Lucida Mirror <div
                         style="background: #ff0000; padding: 4px; border-radius: 4px; color: #fff; font-size: 12px;">
                         OFFLINE</div></button>
                 <button onclick="openDoubleUS()">DoubleDouble (US)</button>
                 <button onclick="openDoubleEU()">DoubleDouble (EU)</button>
-                <button style="display: flex; align-items: center; gap: 8px;">DAB Music <div
+                <button style="display: flex; align-items: center; gap: 8px; cursor: no-drop;">DAB Music <div
                         style="background: #ff0000; padding: 4px; border-radius: 4px; color: #fff; font-size: 12px;">
                         OFFLINE</div></button>
             </div>
@@ -452,7 +449,7 @@
                 </svg></button>
             <div class="ripper-content">
                 <button onclick="openLucida()">Lucida</button>
-                <button style="display: flex; align-items: center; gap: 8px;">Lucida Mirror <div
+                <button style="display: flex; align-items: center; gap: 8px; cursor: no-drop;">Lucida Mirror <div
                         style="background: #ff0000; padding: 4px; border-radius: 4px; color: #fff; font-size: 12px;">
                         OFFLINE</div></button>
                 <button onclick="openDoubleUS()">DoubleDouble (US)</button>
@@ -477,7 +474,7 @@
             <div class="ripper-content">
                 <button onclick="openT2Tunes()">T2Tunes</button>
                 <button onclick="openLucida()">Lucida</button>
-                <button style="display: flex; align-items: center; gap: 8px;">Lucida Mirror <div
+                <button style="display: flex; align-items: center; gap: 8px; cursor: no-drop;">Lucida Mirror <div
                         style="background: #ff0000; padding: 4px; border-radius: 4px; color: #fff; font-size: 12px;">
                         OFFLINE</div></button>
                 <button onclick="openDoubleUS()">DoubleDouble (US)</button>
@@ -496,7 +493,7 @@
                         stroke-linejoin="round" />
                 </svg></button>
             <div class="ripper-content">
-                <button class="ripper-button">YAMS <div
+                <button class="ripper-button" style="cursor: no-drop;">YAMS <div
                         style="background: #ff0000; padding: 4px; border-radius: 4px; color: #fff; font-size: 12px;">
                         OFFLINE</div></button>
             </div>
@@ -529,7 +526,8 @@
                         stroke-linejoin="round" />
                 </svg></button>
             <div class="ripper-content">
-                <button onclick="window.location.href='audiomack-rip.html'" style="display: flex; align-items: center; gap: 8px;">AudiomackRip
+                <button onclick="window.location.href='audiomack-rip.html'"
+                    style="display: flex; align-items: center; gap: 8px;">AudiomackRip
                     <div style="background: #ccc; padding: 4px; border-radius: 4px; color: #000; font-size: 12px;">BETA
                     </div>
                 </button>
@@ -538,9 +536,9 @@
         </div>
 
         <h1 class="section-title">Tools</h1>
-        <button class="ripper-button"><svg xmlns="http://www.w3.org/2000/svg" width="30px" height="30px"
-                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round" class="lucide lucide-braces-icon lucide-braces">
+        <button class="ripper-button" style="cursor: no-drop;"><svg xmlns="http://www.w3.org/2000/svg" width="30px"
+                height="30px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1" />
                 <path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1" />
             </svg>Parameter Linkpage <div
@@ -555,7 +553,7 @@
                 width="30px" height="30px" />buzzheavier</button>
 
         <h1 class="section-title">Lyrics</h1>
-        <button class="ripper-button">
+        <button class="ripper-button" style="cursor: no-drop;">
             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                 class="lucide lucide-file-down-icon lucide-file-down">
@@ -575,10 +573,8 @@
         <button class="ripper-button" onclick="window.location.href='https://github.com/tranxuanthang/lrcget'"><img
                 src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAETklEQVRIS8VXS2xbRRQ9854d27HjKI0CVChICMGiKgLUDaiwYtUVUkmTOKVNkxQSp1XLArUSKzYIJEAR+BvBApqQNBI7YAdLPssg2AMqVMV8nMSOneZ9hjPz7MQmz4lMTZkodjJv5p57z7n3zjyBhlEayU1DIgfBn04OSasCl3pWkum62R0Agrqc7CzgXuclwQ01rYHuEmjdDQ0uNL1AvpPMHmTLhHhZlIZJcUtNFfuamYah5uqj+ZnUFNafKzJbKEfNVcRqfdMwOBM6eRzm0KPYOJ0ltAfg0E7v0oz+1kM6KH7wFUJffk8IE78+GMEjr49DqOW0sTmahct//OB9gZXNyNDTMIaOojribfaAgNj1GWAL+O7VLB57LQkZEyi+kELAFYgvX9TPfpp6G4PLr8CsSJQn532Z3xcYBL7tAyxpfHMqh7KwcN/CJayfTiN2/gTMZx9Ccfg9mEYQpZCNQ1UTjvFPqTw/DgSukq4dnWsRO0KSWAFJObdpt0I5+uaTpENohpwa164QULL5jbaAiYcoqZYW8Mun32Dw+adwMzGHuAwh9v4s0AOsjWZgKEA65dIpQ/6LiCWp3hpNaa8tUiakSR09jcsTWeo9C+e2i42JPCqHw7j/nUn8OTyHmAyi69pFiBDXjflXauuITz0D4+SR3UojeCWRQTfBsCVQOpdD8fF+PHBlGIVzWYQtSacu7FYQ1/+2+C26P19tL6staWMj4GjalMYWGbvHCuKWW0JvMEogNStQMMsIOwH0mBEyYuN37jn8xMOorP4Iw1YsKbr3qtwyYr+E8GsnVHI3+XY2eXOssPaTyz8XOzfbVsSdg92njhWISYH+ithwAwEMlA3YrieWG1RNbJsfAVpw9LdpubCpr1fzu1QHqH9bGgt2h/DSLEyzFidtFcaziNoC0QU2i4B3JNRHMfEu+pYu19pSbZZLyomGBtRAmT/VqkN99BJkyMDaWApdzJLodfbhClvl+XlEFniS0qFNlpf+gxGqRGLbgNMbQl92AutnUtgWJiLMfu/UaB4tgA02hxf1cVQ9k+MX26Ot6JMwTAPhxSTLTML+oaDntt74hGVD2jmq/UEMpKd0zYMNRznkN1okF4EXpxiIicp4BuGPL8DQQgl2ohxi15LUnU7UrK6xVwdqrbF6qAsDmUkNrA76ved5TQ2/89ilwe6VaZjEWj+bgfPcMfSfelLv2BhLI852yGBQJqByhi7otVLKhojTBFYUt9mrrRNH0Xf2OP7If4HCzzdw5M1JD5jJEl9g2yRw6bNVPSckI1v+msiUZifiFIGZ/i1GyzpWisY/5G0jrM9/GDcsVAeDcBJ5JtcMgiqr3fo1x2D25nQSbfYK3JufpiSexm0DexuUYf5SP9l0hfFvnnrHPm2y0YkDLnstHb6zB7XLHgsUqTuz1N5upuOV/+9CX/f1Lr1NNL/C1MErI/nLjpRz/8VLmxDyamxl9q061t/5NdYUxCuKLgAAAABJRU5ErkJggg=="
                 width="30px" height="30px" />LRCGET</button>
-        <button class="ripper-button"><img
+        <button class="ripper-button" onclick="window.location.href='https://syrics-web.vercel.app'"><img
                 src="data:image/png;base64,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"
-                width="30px" height="30px" />Syrics <div
-                style="background: #ff0000; padding: 4px; border-radius: 4px; color: #fff; font-size: 12px;">OFFLINE
-            </div></button>
+                width="30px" height="30px" />Syrics</button>
     </div>
 </body>
